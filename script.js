@@ -32,7 +32,7 @@ function add() {
 /**
  * Draws a note
  */
-function drawNote(item, ctx) {
+function drawNote(ctx, item) {
   ctx.fillStyle = "#fff8dc";
   ctx.fillRect(item.x, item.y, item.w, item.h);
 
@@ -51,12 +51,9 @@ function drawConnections(ctx) {
   ctx.strokeStyle = "red";
   ctx.lineWidth = 2;
 
-  for (const node of nodes) {
-    const connections = node.connections;
-    for (const connection of connections) {
-      const a = node;
-      const b = nodes[connection];
-
+  for (const a of nodes) {
+    const connections = a.connections;
+    for (const b of connections) {
       ctx.beginPath();
       ctx.moveTo(a.x + a.w / 2, a.y + a.h / 2);
       ctx.lineTo(b.x + b.w / 2, b.y + b.h / 2);
@@ -81,14 +78,14 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawConnections(ctx);
   for (const item of nodes) {
-    drawNote(item, ctx);
+    drawNote(ctx, item);
   }
 }
 
 /**
  * Resize canvas to current window height and width
  */
-function resize() {
+function resize(/*NO ARGS*/) {
   const canvas = document.getElementById("area");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - document.getElementById("topnav").offsetHeight;
@@ -102,46 +99,65 @@ function load() {
   resize();
   const canvas = document.getElementById("area");
   let selected = null;
+  let dragging = false;
   let lastclicked = null;
   let offsetX = 0;
   let offsetY = 0;
+  let mx = 0;
+  let my = 0;
   canvas.addEventListener("mousedown", (e) => {
+    dragging = false;
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    mx = e.clientX - rect.left;
+    my = e.clientY - rect.top;
 
+    let node = null;
     for (let i = nodes.length - 1; i >= 0; i--) {
       if (hit(nodes[i], mx, my)) {
-        console.log(i, lastclicked);
-        if (i != lastclicked && lastclicked != null) {
-          if (!nodes[lastclicked].connections.includes(i)) {
-            nodes[lastclicked].connections.push(i);
-            nodes[i].connections.push(lastclicked);
-          } else {
-            nodes[lastclicked].connections.splice(nodes[lastclicked].connections.indexOf(i), 1);
-            nodes[i].connections.splice(nodes[i].connections.indexOf(lastclicked), 1);
-          }
-          lastclicked = null;
-          draw();
-        } else lastclicked = i;
-        selected = nodes[i];
-        offsetX = mx - selected.x;
-        offsetY = my - selected.y;
+        node = nodes[i];
         break;
       }
     }
+    if (!node) return;
+
+    selected = node;
+    offsetX = mx - selected.x;
+    offsetY = my - selected.y;
   });
   canvas.addEventListener("mousemove", (e) => {
     if (!selected) return;
 
-    const rect = canvas.getBoundingClientRect();
-    selected.x = e.clientX - rect.left - offsetX;
-    selected.y = e.clientY - rect.top - offsetY;
-    draw();
+    if (!dragging) {
+      if (Math.abs(e.clientX - mx) + Math.abs(e.clientY - my) > 6) {
+        dragging = true;
+      }
+    }
+    if (dragging) {
+      const rect = canvas.getBoundingClientRect();
+      selected.x = e.clientX - rect.left - offsetX;
+      selected.y = e.clientY - rect.top - offsetY;
+      draw();
+    }
   });
   canvas.addEventListener("mouseup", () => {
+    if (!selected) return;
+    if (!dragging) toggleConnection(selected);
     selected = null;
   });
+  window.addEventListener("resize", resize);
+  function toggleConnection(node) {
+    if (node != lastclicked && lastclicked != null) {
+      if (!lastclicked.connections.includes(node)) {
+        lastclicked.connections.push(node);
+        node.connections.push(lastclicked);
+      } else {
+        lastclicked.connections.splice(lastclicked.connections.indexOf(node), 1);
+        node.connections.splice(node.connections.indexOf(lastclicked), 1);
+      }
+      lastclicked = null;
+      draw();
+    } else lastclicked = node;
+  }
 }
 
 window.onload = load;
