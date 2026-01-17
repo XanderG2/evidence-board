@@ -16,12 +16,18 @@ ul.topnav li {
   float: left;
 }
 
-ul.topnav li a {
+ul.topnav li a,
+#projectname {
   display: block;
   color: white;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
+}
+
+#projectname {
+  background-color: #333333;
+  align-self: center;
 }
 
 ul.topnav li a:hover:not(.active) {

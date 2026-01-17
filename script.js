@@ -1,16 +1,77 @@
 let nodes = [];
+let projectname = "New Evidence Board";
+
+/**
+ * Download file to disk
+ * Stolen from graphile/crystal by Benjie lolol
+ */
+function download(contents, filename, type = "application/json") {
+  const blob = new Blob([contents], { type });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+
+  // Append temporarily to body and click
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  // Delay revoke for safety
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+/**
+ * Save current evidence to localstorage
+ */
+function saveLS() {
+  const s = JSON.stringify(nodes);
+  localStorage.setItem("nodes", s);
+  localStorage.setItem("name", projectname);
+}
 
 /**
  * Save current evidence to computer
- * TODO: create this function
  */
-function save() {}
+function saveDisk() {
+  if (!nodes) nodes = [];
+  const s = JSON.stringify(nodes, null, 2); // pretty JSON
+  const filename = `${projectname.replace(/\s+/g, "_") || "project"}.json`;
+  download(s, filename);
+  console.log("Download attempted:", filename);
+}
+
+/**
+ * Load current evidence from localstorage
+ */
+function loadLS() {
+  nodes = JSON.parse(localStorage.getItem("nodes") || "[]");
+  projectname = localStorage.getItem("name") || projectname;
+  draw();
+  document.getElementById("projectname").value = projectname;
+}
 
 /**
  * Load current evidence from computer
- * TODO: create this function
  */
-function load() {}
+function loadDisk() {
+  const f = document.getElementById("file");
+  f.click();
+  f.addEventListener("change", () => {
+    const file = f.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      filecontent = e.target.result;
+      console.log(filecontent);
+      nodes = JSON.parse(filecontent);
+      projectname = file.name.slice(0, -5);
+      draw();
+      document.getElementById("projectname").value = projectname;
+    };
+    reader.readAsText(file);
+  });
+}
 
 /**
  * Add a node
@@ -53,7 +114,8 @@ function drawConnections(ctx) {
 
   for (const a of nodes) {
     const connections = a.connections;
-    for (const b of connections) {
+    for (const node of connections) {
+      b = nodes[node];
       ctx.beginPath();
       ctx.moveTo(a.x + a.w / 2, a.y + a.h / 2);
       ctx.lineTo(b.x + b.w / 2, b.y + b.h / 2);
@@ -98,6 +160,7 @@ function resize(/*NO ARGS*/) {
 function load() {
   resize();
   const canvas = document.getElementById("area");
+  document.getElementById("projectname").value = projectname;
   let selected = null;
   let dragging = false;
   let lastclicked = null;
@@ -145,14 +208,17 @@ function load() {
     selected = null;
   });
   window.addEventListener("resize", resize);
+  document.getElementById("projectname").addEventListener("change", () => {
+    projectname = document.getElementById("projectname").value;
+  });
   function toggleConnection(node) {
     if (node != lastclicked && lastclicked != null) {
       if (!lastclicked.connections.includes(node)) {
-        lastclicked.connections.push(node);
-        node.connections.push(lastclicked);
+        lastclicked.connections.push(nodes.indexOf(node));
+        node.connections.push(nodes.indexOf(lastclicked));
       } else {
-        lastclicked.connections.splice(lastclicked.connections.indexOf(node), 1);
-        node.connections.splice(node.connections.indexOf(lastclicked), 1);
+        lastclicked.connections.splice(lastclicked.connections.indexOf(nodes.indexOf(node)), 1);
+        node.connections.splice(node.connections.indexOf(nodes.indexOf(lastclicked)), 1);
       }
       lastclicked = null;
       draw();

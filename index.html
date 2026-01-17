@@ -7,15 +7,19 @@
     <link rel="stylesheet" href="navbar.css" />
   </head>
   <body>
+    <input id="file" type="file" accept="application/json" style="display: none" />
     <ul class="topnav" id="topnav">
       <li class="dropdown">
         <a href="javascript:void(0)" class="dropbtn">File</a>
         <div class="dropdown-content">
-          <a onclick="save()">Save to computer</a>
-          <a onclick="load()">Load from computer</a>
+          <a onclick="saveDisk()">Save to computer</a>
+          <a onclick="saveLS()">Save to localStorage</a>
+          <a onclick="loadDisk()">Load from computer</a>
+          <a onclick="loadLS()">Load from localStorage</a>
         </div>
       </li>
       <li><a onclick="add()">+</a></li>
+      <li><input type="text" id="projectname" /></li>
       <li class="right"><a href="https://xander.thegillams.co.uk">Home</a></li>
     </ul>
     <canvas id="area">Your browser does not support the &lt;canvas> tag</canvas>
