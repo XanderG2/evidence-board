@@ -14,26 +14,17 @@ function load() {}
 
 /**
  * Add a node
- * TODO: create this function
  */
 function add() {
+  const t = prompt("Note?");
   nodes.push({
     type: "note",
-    text: "Suspect was here at 9pm",
+    text: t,
     x: 400,
     y: 200,
     w: 220,
     h: 120,
-    connections: [1],
-  });
-  nodes.push({
-    type: "note",
-    text: "Suspect was here at 1pm",
-    x: 700,
-    y: 200,
-    w: 220,
-    h: 120,
-    connections: [0],
+    connections: [],
   });
   draw();
 }
@@ -111,6 +102,7 @@ function load() {
   resize();
   const canvas = document.getElementById("area");
   let selected = null;
+  let lastclicked = null;
   let offsetX = 0;
   let offsetY = 0;
   canvas.addEventListener("mousedown", (e) => {
@@ -120,6 +112,18 @@ function load() {
 
     for (let i = nodes.length - 1; i >= 0; i--) {
       if (hit(nodes[i], mx, my)) {
+        console.log(i, lastclicked);
+        if (i != lastclicked && lastclicked != null) {
+          if (!nodes[lastclicked].connections.includes(i)) {
+            nodes[lastclicked].connections.push(i);
+            nodes[i].connections.push(lastclicked);
+          } else {
+            nodes[lastclicked].connections.splice(nodes[lastclicked].connections.indexOf(i), 1);
+            nodes[i].connections.splice(nodes[i].connections.indexOf(lastclicked), 1);
+          }
+          lastclicked = null;
+          draw();
+        } else lastclicked = i;
         selected = nodes[i];
         offsetX = mx - selected.x;
         offsetY = my - selected.y;
