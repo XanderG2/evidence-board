@@ -101,6 +101,7 @@ function resize() {
   const canvas = document.getElementById("area");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - document.getElementById("topnav").offsetHeight;
+  draw();
 }
 
 /**
