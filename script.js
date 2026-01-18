@@ -1,5 +1,17 @@
+// Constants
+const NOTE_BACKGROUND_COLOR = "#fff8dc";
+const NOTE_OUTLINE_COLOR = "#333";
+const NOTE_TEXT_COLOR = "#000";
+const NOTE_FONT = "14px monospace";
+const DEFAULT_NODE_HEIGHT = 120;
+const DEFAULT_NODE_WIDTH = 220;
+const DEFAULT_NODE_X = 400;
+const DEFAULT_NODE_Y = 200;
+const canvas = document.getElementById("area");
+
 let nodes = [];
 let projectname = "New Evidence Board";
+let idcounter = 0;
 
 /**
  * Download file to disk
@@ -79,30 +91,49 @@ function loadDisk() {
 function add() {
   const t = prompt("Note?");
   nodes.push({
-    type: "note",
+    type: "note", // TODO: add other types eg. images
+    id: idcounter + 1,
     text: t,
-    x: 400,
-    y: 200,
-    w: 220,
-    h: 120,
+    x: DEFAULT_NODE_X,
+    y: DEFAULT_NODE_Y,
+    w: DEFAULT_NODE_WIDTH,
+    h: DEFAULT_NODE_HEIGHT,
+    el: null,
     connections: [],
   });
+  idcounter++;
   draw();
+}
+
+function renderWrappingTextToCanvas(item) {
+  console.log(item);
+  if (item.el) {
+    if (item.el.innerHTML != item.text) item.el.innerHTML = item.text;
+    item.el.style.top = item.y + document.getElementById("topnav").offsetHeight + "px";
+    item.el.style.left = item.x + "px";
+  } else {
+    item.el = document.createElement("span");
+    item.el.style = `padding: 2px; font-size: 14px; word-wrap: break-word; font-family: monospace, monospace; position: absolute; width: ${item.w}px; height: ${item.h}px; pointer-events:none; background-color: ${NOTE_BACKGROUND_COLOR}; border: 2px solid ${NOTE_OUTLINE_COLOR}; `;
+    item.el.id = `${item.id}`;
+    item.el.innerHTML = item.text;
+    item.el.style.top = item.y + document.getElementById("topnav").offsetHeight + "px";
+    item.el.style.left = item.x + "px";
+    document.body.appendChild(item.el);
+  }
 }
 
 /**
  * Draws a note
+ * TODO: add other types eg. images
  */
 function drawNote(ctx, item) {
-  ctx.fillStyle = "#fff8dc";
-  ctx.fillRect(item.x, item.y, item.w, item.h);
+  //ctx.fillStyle = NOTE_BACKGROUND_COLOR;
+  //ctx.fillRect(item.x, item.y, item.w, item.h);
 
-  ctx.strokeStyle = "#333";
-  ctx.strokeRect(item.x, item.y, item.w, item.h);
+  //ctx.strokeStyle = NOTE_OUTLINE_COLOR;
+  //ctx.strokeRect(item.x, item.y, item.w, item.h);
 
-  ctx.fillStyle = "#000";
-  ctx.font = "14px monospace";
-  ctx.fillText(item.text, item.x + 8, item.y + 24);
+  renderWrappingTextToCanvas(item);
 }
 
 /**
@@ -135,10 +166,9 @@ function hit(item, mx, my) {
  * Draw loop
  */
 function draw() {
-  const canvas = document.getElementById("area");
   const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawConnections(ctx);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); //*NOTE: this only clears the view, so when moving around is implemented, wont work
+  drawConnections(ctx); //*                                  actually, it might work but im not sure
   for (const item of nodes) {
     drawNote(ctx, item);
   }
@@ -148,7 +178,6 @@ function draw() {
  * Resize canvas to current window height and width
  */
 function resize(/*NO ARGS*/) {
-  const canvas = document.getElementById("area");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - document.getElementById("topnav").offsetHeight;
   draw();
@@ -159,7 +188,6 @@ function resize(/*NO ARGS*/) {
  */
 function load() {
   resize();
-  const canvas = document.getElementById("area");
   document.getElementById("projectname").value = projectname;
   let selected = null;
   let dragging = false;
