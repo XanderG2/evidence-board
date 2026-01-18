@@ -38,7 +38,12 @@ function download(contents, filename, type = "application/json") {
  * Save current evidence to localstorage
  */
 function saveLS() {
-  const s = JSON.stringify(nodes);
+  if (!nodes) nodes = [];
+  let newNodes = nodes;
+  for (const node of newNodes) {
+    node.el = node.el.outerHTML;
+  }
+  const s = JSON.stringify(newNodes);
   localStorage.setItem("nodes", s);
   localStorage.setItem("name", projectname);
 }
@@ -48,7 +53,11 @@ function saveLS() {
  */
 function saveDisk() {
   if (!nodes) nodes = [];
-  const s = JSON.stringify(nodes, null, 2); // pretty JSON
+  let newNodes = nodes;
+  for (const node of newNodes) {
+    node.el = node.el.outerHTML;
+  }
+  const s = JSON.stringify(newNodes);
   const filename = `${projectname.replace(/\s+/g, "_") || "project"}.json`;
   download(s, filename);
   console.log("Download attempted:", filename);
@@ -59,30 +68,48 @@ function saveDisk() {
  */
 function loadLS() {
   nodes = JSON.parse(localStorage.getItem("nodes") || "[]");
+  for (const node of nodes) {
+    node.el = null;
+  }
+  idcounter = nodes[nodes.length - 1].id;
   projectname = localStorage.getItem("name") || projectname;
   draw();
   document.getElementById("projectname").value = projectname;
 }
 
+function submitFile() {
+  return new Promise((resolve) => {
+    const f = document.getElementById("file");
+
+    f.onchange = () => {
+      const file = f.files[0];
+
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        resolve([file.name, e.target.result]);
+      };
+
+      reader.readAsText(file);
+    };
+
+    f.click();
+  });
+}
+
 /**
  * Load current evidence from computer
  */
-function loadDisk() {
-  const f = document.getElementById("file");
-  f.click();
-  f.addEventListener("change", () => {
-    const file = f.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      filecontent = e.target.result;
-      console.log(filecontent);
-      nodes = JSON.parse(filecontent);
-      projectname = file.name.slice(0, -5);
-      draw();
-      document.getElementById("projectname").value = projectname;
-    };
-    reader.readAsText(file);
-  });
+async function loadDisk() {
+  const [filename, content] = await submitFile();
+  nodes = JSON.parse(content);
+  for (const node of nodes) {
+    node.el = null;
+  }
+  idcounter = nodes[nodes.length - 1].id;
+  projectname = filename.slice(0, -5);
+  draw();
+  document.getElementById("projectname").value = projectname;
 }
 
 /**
