@@ -268,7 +268,7 @@ function load() {
   });
   function toggleConnection(node) {
     if (node != lastclicked && lastclicked != null) {
-      if (!lastclicked.connections.includes(node)) {
+      if (!lastclicked.connections.includes(nodes.indexOf(node))) {
         lastclicked.connections.push(nodes.indexOf(node));
         node.connections.push(nodes.indexOf(lastclicked));
       } else {
