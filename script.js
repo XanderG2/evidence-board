@@ -10,6 +10,7 @@ const DEFAULT_NODE_Y = 200;
 const canvas = document.getElementById("area");
 const overlay = document.querySelector(".overlay");
 const modal = document.querySelector(".modal");
+const input = document.getElementById("text");
 
 let nodes = [];
 let projectname = "New Evidence Board";
@@ -115,6 +116,7 @@ async function loadDisk() {
 function openForm() {
   overlay.hidden = false;
   modal.hidden = false;
+  input.focus();
 }
 
 function closeForm() {
