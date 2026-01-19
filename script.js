@@ -39,7 +39,7 @@ function saveLS() {
   if (!nodes) nodes = [];
   let newNodes = nodes;
   for (const node of newNodes) {
-    node.el = node.el.outerHTML;
+    node.el = null;
   }
   const s = JSON.stringify(newNodes);
   localStorage.setItem("nodes", s);
@@ -53,7 +53,7 @@ function saveDisk() {
   if (!nodes) nodes = [];
   let newNodes = nodes;
   for (const node of newNodes) {
-    node.el = node.el.outerHTML;
+    node.el = null;
   }
   const s = JSON.stringify(newNodes);
   const filename = `${projectname.replace(/\s+/g, "_") || "project"}.json`;
@@ -123,6 +123,9 @@ function add() {
     y: DEFAULT_NODE_Y,
     w: DEFAULT_NODE_WIDTH,
     h: DEFAULT_NODE_HEIGHT,
+    c: NOTE_BACKGROUND_COLOR,
+    b: NOTE_OUTLINE_COLOR,
+    t: NOTE_TEXT_COLOR,
     el: null,
     connections: [],
   });
@@ -138,7 +141,7 @@ function renderWrappingTextToCanvas(item) {
     item.el.style.left = item.x + "px";
   } else {
     item.el = document.createElement("span");
-    item.el.style = `padding: 2px; font-size: 14px; word-wrap: break-word; font-family: monospace, monospace; position: absolute; width: ${item.w}px; height: ${item.h}px; pointer-events:none; background-color: ${NOTE_BACKGROUND_COLOR}; border: 2px solid ${NOTE_OUTLINE_COLOR}; `;
+    item.el.style = `padding: 2px; font-size: 14px; word-wrap: break-word; font-family: monospace, monospace; position: absolute; width: ${item.w}px; height: ${item.h}px; pointer-events:none; background-color: ${item.c}; border: 2px solid ${item.b}; color: ${item.t}; `;
     item.el.id = `${item.id}`;
     item.el.innerHTML = item.text;
     item.el.style.top = item.y + document.getElementById("topnav").offsetHeight + "px";
