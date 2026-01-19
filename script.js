@@ -25,13 +25,11 @@ function download(contents, filename, type = "application/json") {
   a.href = url;
   a.download = filename;
 
-  // Append temporarily to body and click
   document.body.appendChild(a);
   a.click();
   a.remove();
 
-  // Delay revoke for safety
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  URL.revokeObjectURL(url);
 }
 
 /**
