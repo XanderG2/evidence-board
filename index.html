@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evidence Board Maker</title>
     <link rel="stylesheet" href="navbar.css" />
+    <link rel="stylesheet" href="main.css" />
   </head>
   <body>
     <input id="file" type="file" accept="application/json" style="display: none" />
+    <div class="overlay" hidden onclick="closeForm()"></div>
+    <div class="modal" hidden>
+      <form id="add" action="javascript:add()">
+        <label for="text">Note text</label>
+        <input type="text" id="text" name="text" placeholder="Text..." />
+        <label for="bg">Background color</label>
+        <input type="color" id="bg" name="bg" value="#fff8dc" />
+        <label for="bd">Border color</label>
+        <input type="color" id="bd" name="bd" value="#333333" />
+        <label for="tc">Text color</label>
+        <input type="color" id="tc" name="tc" value="#000000" />
+        <input type="submit" />
+      </form>
+    </div>
     <ul class="topnav" id="topnav">
       <li class="dropdown">
         <a href="javascript:void(0)" class="dropbtn">File</a>
@@ -18,7 +33,7 @@
           <a onclick="loadLS()">Load from localStorage</a>
         </div>
       </li>
-      <li><a onclick="add()">+</a></li>
+      <li><a onclick="openForm()">+</a></li>
       <li><input type="text" id="projectname" /></li>
       <li class="right"><a href="https://xander.thegillams.co.uk">Home</a></li>
     </ul>

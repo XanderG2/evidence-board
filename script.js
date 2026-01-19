@@ -1,13 +1,15 @@
 // Constants
 const NOTE_BACKGROUND_COLOR = "#fff8dc";
-const NOTE_OUTLINE_COLOR = "#333";
-const NOTE_TEXT_COLOR = "#000";
+const NOTE_OUTLINE_COLOR = "#333333";
+const NOTE_TEXT_COLOR = "#000000";
 const NOTE_FONT = "14px monospace";
 const DEFAULT_NODE_HEIGHT = 120;
 const DEFAULT_NODE_WIDTH = 220;
 const DEFAULT_NODE_X = 400;
 const DEFAULT_NODE_Y = 200;
 const canvas = document.getElementById("area");
+const overlay = document.querySelector(".overlay");
+const modal = document.querySelector(".modal");
 
 let nodes = [];
 let projectname = "New Evidence Board";
@@ -110,11 +112,34 @@ async function loadDisk() {
   document.getElementById("projectname").value = projectname;
 }
 
+function openForm() {
+  overlay.hidden = false;
+  modal.hidden = false;
+}
+
+function closeForm() {
+  overlay.hidden = true;
+  modal.hidden = true;
+}
+
 /**
  * Add a node
  */
 function add() {
-  const t = prompt("Note?");
+  closeForm();
+  const text = document.getElementById("text");
+  const t = text.value;
+  text.value = "";
+  const background = document.getElementById("bg");
+  const bg = background.value;
+  background.value = NOTE_BACKGROUND_COLOR;
+  const border = document.getElementById("bd");
+  const bd = border.value;
+  border.value = NOTE_OUTLINE_COLOR;
+  textcolor = document.getElementById("tc");
+  const tc = textcolor.value;
+  textcolor.value = NOTE_TEXT_COLOR;
+
   nodes.push({
     type: "note", // TODO: add other types eg. images
     id: idcounter + 1,
@@ -123,9 +148,9 @@ function add() {
     y: DEFAULT_NODE_Y,
     w: DEFAULT_NODE_WIDTH,
     h: DEFAULT_NODE_HEIGHT,
-    c: NOTE_BACKGROUND_COLOR,
-    b: NOTE_OUTLINE_COLOR,
-    t: NOTE_TEXT_COLOR,
+    c: bg,
+    b: bd,
+    t: tc,
     el: null,
     connections: [],
   });
